@@ -119,7 +119,8 @@ library NameSetterUtils {
     }
 
     /// @notice Internal: Creates ENS subname under given parent
-    function _createSubname(uint256 chainId, bytes32 parentNode, string memory label, bytes32 labelHash, address owner) internal returns (bool) {
+    /// @dev Uses msg.sender as the owner of the created subname
+    function _createSubname(uint256 chainId, bytes32 parentNode, string memory label, bytes32 labelHash) internal returns (bool) {
         address registry = _getRegistry();
         address nameWrapper = _getNameWrapper(chainId);
         address resolver = _getResolver(chainId, parentNode);
@@ -128,9 +129,9 @@ library NameSetterUtils {
         require(resolver != address(0), "NameSetter: resolver not set for parent node");
 
         if (_checkWrapped(chainId, parentNode)) {
-            INameWrapper(nameWrapper).setSubnodeRecord(parentNode, label, owner, resolver, 0, 0, 0);
+            INameWrapper(nameWrapper).setSubnodeRecord(parentNode, label, msg.sender, resolver, 0, 0, 0);
         } else {
-            IENSRegistry(registry).setSubnodeRecord(parentNode, labelHash, owner, resolver, 0);
+            IENSRegistry(registry).setSubnodeRecord(parentNode, labelHash, msg.sender, resolver, 0);
         }
         return true;
     }
@@ -141,6 +142,33 @@ library NameSetterUtils {
         require(resolverAddr != address(0), "NameSetter: resolver not set for node");
         
         try IPublicResolver(resolverAddr).setAddr(node, coinType, addrBytes) {
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /// @notice Internal: Sets the primary (reverse) ENS name for an address
+    /// @dev Mirrors Enscribe's _setPrimaryName, using ReverseRegistrar.setNameForAddr
+    /// @param chainId The chain ID to determine which ReverseRegistrar to use
+    /// @param addr The address whose primary name is being set (typically the deployed contract)
+    /// @param node The forward resolution node for the ENS name
+    /// @param name The full ENS name (e.g., "sub.domain.eth")
+    /// @return success Whether the operation succeeded (does not revert on ReverseRegistrar failure)
+    function _setPrimaryName(
+        uint256 chainId,
+        address addr,
+        bytes32 node,
+        string memory name
+    ) internal returns (bool success) {
+        address reverseRegistrar = _getReverseRegistrar(chainId);
+        require(reverseRegistrar != address(0), "NameSetter: reverseRegistrar not set for chainId");
+
+        address resolverAddr = _getResolver(chainId, node);
+        require(resolverAddr != address(0), "NameSetter: resolver not set for node");
+
+        // Follows Enscribe's pattern: best-effort, swallow reverse errors
+        try IReverseRegistrar(reverseRegistrar).setNameForAddr(addr, msg.sender, resolverAddr, name) {
             return true;
         } catch {
             return false;
@@ -167,17 +195,17 @@ library NameSetterUtils {
         }
     }
 
-    /// @notice Internal: Verifies if the address is owner of the given node
-    function _isSenderOwner(uint256 chainId, bytes32 node, address owner) internal view returns (bool) {
+    /// @notice Internal: Verifies if msg.sender is owner of the given node
+    function _isSenderOwner(uint256 chainId, bytes32 node) internal view returns (bool) {
         address registry = _getRegistry();
         address nameWrapper = _getNameWrapper(chainId);
         
         require(registry != address(0), "NameSetter: unsupported chainId");
 
         if (_checkWrapped(chainId, node)) {
-            return INameWrapper(nameWrapper).ownerOf(uint256(node)) == owner;
+            return INameWrapper(nameWrapper).ownerOf(uint256(node)) == msg.sender;
         } else {
-            return IENSRegistry(registry).owner(node) == owner;
+            return IENSRegistry(registry).owner(node) == msg.sender;
         }
     }
 
