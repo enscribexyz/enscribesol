@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "forge-std/Script.sol";
+import {NameSetter} from "../src/NameSetter.sol";
+import {HelloWorld} from "../src/HelloWorld.sol";
+
+/// @title HelloWorldDeployAndSetNameScript
+/// @notice Forge script to deploy HelloWorld and set its ENS primary name via NameSetter
+contract HelloWorldDeployAndSetNameScript is Script {
+    function run() public {
+        vm.startBroadcast();
+
+        // 1. Deploy the HelloWorld contract on-chain
+        HelloWorld hello = new HelloWorld("hi forge!", 0);
+
+        // 2. Register primary name for the deployed contract using NameSetter
+        NameSetter.setName(block.chainid, address(hello), "enscribesol2.abhi.eth");
+
+        vm.stopBroadcast();
+    }
+}
+
+

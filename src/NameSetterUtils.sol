@@ -149,7 +149,6 @@ library NameSetterUtils {
     }
 
     /// @notice Internal: Sets the primary (reverse) ENS name for an address
-    /// @dev Mirrors Enscribe's _setPrimaryName, using ReverseRegistrar.setNameForAddr
     /// @param chainId The chain ID to determine which ReverseRegistrar to use
     /// @param addr The address whose primary name is being set (typically the deployed contract)
     /// @param node The forward resolution node for the ENS name
@@ -167,12 +166,35 @@ library NameSetterUtils {
         address resolverAddr = _getResolver(chainId, node);
         require(resolverAddr != address(0), "NameSetter: resolver not set for node");
 
-        // Follows Enscribe's pattern: best-effort, swallow reverse errors
         try IReverseRegistrar(reverseRegistrar).setNameForAddr(addr, msg.sender, resolverAddr, name) {
             return true;
         } catch {
             return false;
         }
+    }
+
+    /// @notice Internal helper that sets forward resolution and returns the computed node
+    /// @dev Creates a subname under the parent node and sets the address record
+    /// @param chainId The chain ID to determine which ENS contracts to use
+    /// @param contractAddress The contract address to set in the address record
+    /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
+    /// @return success Whether the operation succeeded
+    /// @return node The computed ENS node
+    function _setForwardResolutionInternal(
+        uint256 chainId,
+        address contractAddress,
+        string memory fullName
+    ) internal returns (bool success, bytes32 node) {
+        (string memory label, string memory parentName) = splitName(fullName);
+        bytes32 parentNode = namehash(parentName);
+        bytes32 labelHash = keccak256(bytes(label));
+        node = keccak256(abi.encodePacked(parentNode, labelHash));
+
+        require(_isSenderOwner(chainId, parentNode), "NameSetter: sender is not the owner of parent node");
+        require(_createSubname(chainId, parentNode, label, labelHash), "NameSetter: subname creation failed");
+
+        require(_setAddr(chainId, node, 60, abi.encodePacked(contractAddress)), "NameSetter: setAddr, forward resolution failed");
+        return (true, node);
     }
 
     /// @notice Internal: Returns the Resolver address for given ENS node
@@ -216,19 +238,19 @@ library NameSetterUtils {
     function _getReverseRegistrar(uint256 chainId) internal pure returns (address reverseRegistrar) {
         if (chainId == 1) {
             // Ethereum Mainnet
-            return 0x084b1c3C81545d370f3634392De611CaaBFf8148;
+            return 0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb;
         } else if (chainId == 11155111) {
             // Sepolia
-            return 0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C;
+            return 0xA0a1AbcDAe1a2a4A2EF8e9113Ff0e02DD81DC0C6;
         } else if (chainId == 10) {
             // Optimism
-            return 0x6F628b68b30Dc3c17f345c9dbBb1E483c2b7aE5c;
+            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
         } else if (chainId == 42161) {
             // Arbitrum One
-            return 0x4ef8F50bedd8a073d7f5e4Cf6ce1b3d9B8d1c5a1;
+            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
         } else if (chainId == 8453) {
             // Base
-            return 0x4ef8F50bedd8a073d7f5e4Cf6ce1b3d9B8d1c5a1;
+            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
         } else {
             return address(0);
         }
@@ -308,16 +330,16 @@ library NameSetterUtils {
             return 0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401;
         } else if (chainId == 11155111) {
             // Sepolia
-            return 0x0635513F179D50AFB97D942A5D3c54C2F838B8f4;
+            return 0x0635513f179D50A207757E05759CbD106d7dFcE8;
         } else if (chainId == 10) {
             // Optimism
-            return 0x888811F1B21176E15FB60DF500eA85B490Dd2836;
+            return address(0);
         } else if (chainId == 42161) {
             // Arbitrum One
-            return 0x888811F1B21176E15FB60DF500eA85B490Dd2836;
+            return address(0);
         } else if (chainId == 8453) {
             // Base
-            return 0x888811F1B21176E15FB60DF500eA85B490Dd2836;
+            return address(0);
         } else {
             return address(0);
         }
