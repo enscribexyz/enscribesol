@@ -23,7 +23,10 @@ interface IENSRegistry {
 interface IPublicResolver {
     function setAddr(bytes32 node, uint256 coinType, bytes calldata a) external;
     function setAddr(bytes32 node, address a) external;
+    function addr(bytes32 node, uint256 coinType) external view returns (bytes memory);
+    function addr(bytes32 node) external view returns (address payable);
     function setName(bytes32 node, string calldata newName) external;
+    function name(bytes32 node) external view returns (string memory);
     function setText(bytes32 node, string calldata key, string calldata value) external;
     function text(bytes32 node, string calldata key) external view returns (string memory);
 }
@@ -128,6 +131,37 @@ library NameSetterUtils {
         require(registry != address(0), "NameSetter: unsupported chainId");
         require(resolver != address(0), "NameSetter: resolver not set for parent node");
 
+        // Compute the subname node
+        bytes32 subnameNode = keccak256(abi.encodePacked(parentNode, labelHash));
+        
+        // Check if subname already exists and get the owner
+        address existingOwner = address(0);
+        bool subnameExists = false;
+        
+        // Check if subname is wrapped first (wrapped names are owned via NameWrapper)
+        bool subnameIsWrapped = _checkWrapped(chainId, subnameNode);
+        if (subnameIsWrapped && nameWrapper != address(0)) {
+            try INameWrapper(nameWrapper).ownerOf(uint256(subnameNode)) returns (address owner) {
+                existingOwner = owner;
+                subnameExists = (owner != address(0));
+            } catch {
+                // If ownerOf fails, subname doesn't exist
+            }
+        } else {
+            // For unwrapped names, check registry
+            existingOwner = IENSRegistry(registry).owner(subnameNode);
+            subnameExists = (existingOwner != address(0));
+        }
+        
+        // If subname exists and we own it, skip creation
+        if (subnameExists && existingOwner == msg.sender) {
+            return true;
+        }
+        
+        // If subname exists but we don't own it, revert
+        require(!subnameExists, "NameSetter: subname already exists and is owned by another address");
+
+        // Create the subname if it doesn't exist
         if (_checkWrapped(chainId, parentNode)) {
             INameWrapper(nameWrapper).setSubnodeRecord(parentNode, label, msg.sender, resolver, 0, 0, 0);
         } else {
@@ -136,13 +170,67 @@ library NameSetterUtils {
         return true;
     }
 
+    /// @notice Internal: Checks if address record already exists and matches the target address
+    function _addrMatches(uint256 chainId, bytes32 node, uint256 coinType, bytes memory targetAddrBytes) internal view returns (bool) {
+        address resolverAddr = _getResolver(chainId, node);
+        if (resolverAddr == address(0)) {
+            return false;
+        }
+        
+        try IPublicResolver(resolverAddr).addr(node, coinType) returns (bytes memory existingAddrBytes) {
+            return keccak256(existingAddrBytes) == keccak256(targetAddrBytes);
+        } catch {
+            return false;
+        }
+    }
+
     /// @notice Internal: Sets address record, forward resolution
     function _setAddr(uint256 chainId, bytes32 node, uint256 coinType, bytes memory addrBytes) internal returns (bool) {
+        // Check if address record already exists and matches
+        if (_addrMatches(chainId, node, coinType, addrBytes)) {
+            return true; // Already set correctly, skip
+        }
+        
         address resolverAddr = _getResolver(chainId, node);
         require(resolverAddr != address(0), "NameSetter: resolver not set for node");
         
         try IPublicResolver(resolverAddr).setAddr(node, coinType, addrBytes) {
             return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /// @notice Internal: Checks if reverse/primary name already exists and matches the target name
+    function _primaryNameMatches(uint256 chainId, address addr, bytes32 node, string memory targetName) internal view returns (bool) {
+        // Get the reverse node for the address
+        address reverseRegistrar = _getReverseRegistrar(chainId);
+        if (reverseRegistrar == address(0)) {
+            return false;
+        }
+        
+        try IReverseRegistrar(reverseRegistrar).node(addr) returns (bytes32 reverseNode) {
+            if (reverseNode == bytes32(0)) {
+                return false; // No reverse node set
+            }
+            
+            // Get the resolver for the reverse node
+            address registry = _getRegistry();
+            if (registry == address(0)) {
+                return false;
+            }
+            
+            address resolverAddr = IENSRegistry(registry).resolver(reverseNode);
+            if (resolverAddr == address(0)) {
+                return false;
+            }
+            
+            // Check if the name in the resolver for the reverse node matches
+            try IPublicResolver(resolverAddr).name(reverseNode) returns (string memory existingName) {
+                return keccak256(bytes(existingName)) == keccak256(bytes(targetName));
+            } catch {
+                return false;
+            }
         } catch {
             return false;
         }
@@ -160,6 +248,11 @@ library NameSetterUtils {
         bytes32 node,
         string memory name
     ) internal returns (bool success) {
+        // Check if primary name already exists and matches
+        if (_primaryNameMatches(chainId, addr, node, name)) {
+            return true; // Already set correctly, skip
+        }
+        
         address reverseRegistrar = _getReverseRegistrar(chainId);
         require(reverseRegistrar != address(0), "NameSetter: reverseRegistrar not set for chainId");
 

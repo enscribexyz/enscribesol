@@ -12,7 +12,7 @@ contract HelloWorldSetNameForExisting is Script {
         vm.startBroadcast();
 
         // Register primary name for already deployed contract using NameSetter
-        NameSetter.setName(block.chainid, 0xb92339f9E343a171223AA9F4ABd1f32269631F95, "enscribesol2.abhi.eth");
+        NameSetter.setName(block.chainid, 0x7f9E2Cdd7cFC02622eD63D498D869bEA90AE87D1, "enscribesolfwdres11.abhi.eth");
 
         vm.stopBroadcast();
     }
