@@ -2,25 +2,25 @@
 pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
-import {NameSetter} from "../src/NameSetter.sol";
+import {Ens} from "../src/Ens.sol";
 import {HelloWorld} from "../src/HelloWorld.sol";
 
-/// @title NameSetterIntegrationHarness
-/// @notice Simple harness contract that exposes the NameSetter library for integration tests
-contract NameSetterIntegrationHarness {
+/// @title EnsIntegrationHarness
+/// @notice Simple harness contract that exposes the Ens library for integration tests
+contract EnsIntegrationHarness {
     function setContractName(
         uint256 chainId,
         address contractAddress,
         string calldata fullName
     ) external {
-        NameSetter.setName(chainId, contractAddress, fullName);
+        Ens.setName(chainId, contractAddress, fullName);
     }
 }
 
-/// @title NameSetterIntegrationTest
+/// @title EnsIntegrationTest
 /// @notice Integration test that deploys a HelloWorld contract and registers a primary ENS name for it
-contract NameSetterIntegrationTest is Test {
-    NameSetterIntegrationHarness public harness;
+contract EnsIntegrationTest is Test {
+    EnsIntegrationHarness public harness;
     HelloWorld public helloWorld;
 
     // Adjust this if your local Anvil/ENS setup uses a different chainId mapping
@@ -31,15 +31,15 @@ contract NameSetterIntegrationTest is Test {
         helloWorld = new HelloWorld("Hello, world!", 0);
     }
 
-    /// @notice Deploys HelloWorld and registers a primary name using NameSetter.setName
+    /// @notice Deploys HelloWorld and registers a primary name using Ens.setName
     /// @dev This assumes your local Anvil node has ENS contracts deployed at the canonical
-    ///      addresses expected by NameSetterUtils, and that msg.sender (this test contract)
+    ///      addresses expected by CommonUtils, and that msg.sender (this test contract)
     ///      is the owner of the parent node for `fullName` on that ENS registry.
     function test_SetPrimaryNameForHelloWorld() public {
         // Full ENS name to register as the primary / reverse name for the deployed contract
         string memory fullName = "helloworld.eth";
 
-        // Call into the harness, which in turn uses the NameSetter library
+        // Call into the harness, which in turn uses the Ens library
         // This will:
         // 1. Split the name into label + parent
         // 2. Verify msg.sender owns the parent node

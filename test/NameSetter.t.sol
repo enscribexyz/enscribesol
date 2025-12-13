@@ -2,18 +2,18 @@
 pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
-import {NameSetter} from "../src/NameSetter.sol";
-import {NameSetterUtils} from "../src/NameSetterUtils.sol";
+import {Ens} from "../src/Ens.sol";
+import {CommonUtils} from "../src/CommonUtils.sol";
 
 /// @title NameSetterWrapper
 /// @notice Wrapper contract to test library functions
 contract NameSetterWrapper {
     function splitName(string memory fullName) external pure returns (string memory label, string memory parentName) {
-        return NameSetterUtils.splitName(fullName);
+        return CommonUtils.splitName(fullName);
     }
 
     function namehash(string memory name) external pure returns (bytes32) {
-        return NameSetterUtils.namehash(name);
+        return CommonUtils.namehash(name);
     }
 }
 
@@ -118,67 +118,67 @@ contract NameSetterTest is Test {
 
     /// @notice Test getter functions for contract addresses
     function test_GetRegistry_Mainnet() public pure {
-        address registry = NameSetterUtils.getRegistry(1);
+        address registry = CommonUtils.getRegistry();
         assertEq(registry, 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     }
 
     function test_GetRegistry_Sepolia() public pure {
-        address registry = NameSetterUtils.getRegistry(11155111);
+        address registry = CommonUtils.getRegistry();
         assertEq(registry, 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     }
 
     function test_GetRegistry_Optimism() public pure {
-        address registry = NameSetterUtils.getRegistry(10);
+        address registry = CommonUtils.getRegistry();
         assertEq(registry, 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     }
 
     function test_GetRegistry_Unsupported() public pure {
-        address registry = NameSetterUtils.getRegistry(999);
+        address registry = CommonUtils.getRegistry();
         assertEq(registry, 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     }
 
     function test_GetPublicResolver_Mainnet() public pure {
-        address resolver = NameSetterUtils.getPublicResolver(1);
+        address resolver = CommonUtils.getPublicResolver(1);
         assertEq(resolver, 0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63);
     }
 
     function test_GetPublicResolver_Sepolia() public pure {
-        address resolver = NameSetterUtils.getPublicResolver(11155111);
+        address resolver = CommonUtils.getPublicResolver(11155111);
         assertEq(resolver, 0xE99638b40E4Fff0129D56f03b55b6bbC4BBE49b5);
     }
 
     function test_GetPublicResolver_Unsupported() public pure {
-        address resolver = NameSetterUtils.getPublicResolver(999);
+        address resolver = CommonUtils.getPublicResolver(999);
         assertEq(resolver, address(0));
     }
 
     function test_GetNameWrapper_Mainnet() public pure {
-        address nameWrapper = NameSetterUtils.getNameWrapper(1);
+        address nameWrapper = CommonUtils.getNameWrapper(1);
         assertEq(nameWrapper, 0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401);
     }
 
     function test_GetNameWrapper_Sepolia() public pure {
-        address nameWrapper = NameSetterUtils.getNameWrapper(11155111);
-        assertEq(nameWrapper, 0x0635513F179D50AFB97D942A5D3c54C2F838B8f4);
+        address nameWrapper = CommonUtils.getNameWrapper(11155111);
+        assertEq(nameWrapper, 0x0635513f179D50A207757E05759CbD106d7dFcE8);
     }
 
     function test_GetNameWrapper_Unsupported() public pure {
-        address nameWrapper = NameSetterUtils.getNameWrapper(999);
+        address nameWrapper = CommonUtils.getNameWrapper(999);
         assertEq(nameWrapper, address(0));
     }
 
     function test_GetReverseRegistrar_Mainnet() public pure {
-        address reverseRegistrar = NameSetterUtils.getReverseRegistrar(1);
-        assertEq(reverseRegistrar, 0x084b1c3C81545d370f3634392De611CaaBFf8148);
+        address reverseRegistrar = CommonUtils.getReverseRegistrar(1);
+        assertEq(reverseRegistrar, 0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb);
     }
 
     function test_GetReverseRegistrar_Sepolia() public pure {
-        address reverseRegistrar = NameSetterUtils.getReverseRegistrar(11155111);
-        assertEq(reverseRegistrar, 0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C);
+        address reverseRegistrar = CommonUtils.getReverseRegistrar(11155111);
+        assertEq(reverseRegistrar, 0xA0a1AbcDAe1a2a4A2EF8e9113Ff0e02DD81DC0C6);
     }
 
     function test_GetReverseRegistrar_Unsupported() public pure {
-        address reverseRegistrar = NameSetterUtils.getReverseRegistrar(999);
+        address reverseRegistrar = CommonUtils.getReverseRegistrar(999);
         assertEq(reverseRegistrar, address(0));
     }
 

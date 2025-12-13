@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./NameSetterUtils.sol";
+import "./L1NameSetter.sol";
+import "./BasenameSetter.sol";
+import "./CommonUtils.sol";
 
-/// @title NameSetter
+/// @title Ens
 /// @notice A library for setting ENS names via ENS core contracts
 /// @dev This library provides functionality to create subnames and set forward resolution
-library NameSetter {
-
+/// @dev Routes to L1NameSetter for L1 chains or BasenameSetter for Base chains
+library Ens {
     /// @notice Sets primary name for the given contract address. If primary name cannot be set, then sets only forward resolution.
     /// @dev Creates a subname under the parent node and sets the address record
     /// @param chainId The chain ID where the contract is deployed
@@ -19,12 +21,13 @@ library NameSetter {
         address contractAddress,
         string memory fullName
     ) internal returns (bool success) {
-        (bool forwardSuccess, bytes32 node) = NameSetterUtils._setForwardResolutionInternal(chainId, contractAddress, fullName);
-        require(forwardSuccess, "NameSetter: forward resolution failed");
-        
-        // After forward resolution succeeds, set reverse/primary name
-        require(NameSetterUtils._setPrimaryName(chainId, contractAddress, node, fullName), "NameSetter: setPrimaryName failed");
-        return true;
+        // Route to Base-specific logic for Base chains
+        if (chainId == CommonUtils.BASE_MAINNET || chainId == CommonUtils.BASE_SEPOLIA) {
+            return BasenameSetter.setName(chainId, contractAddress, fullName);
+        } else {
+            // Use L1 logic for other chains
+            return L1NameSetter.setName(chainId, contractAddress, fullName);
+        }
     }
 
     /// @notice Sets the ENS subname and forward resolution only (without reverse record)
@@ -38,8 +41,17 @@ library NameSetter {
         address contractAddress,
         string memory fullName
     ) internal returns (bool success) {
-        (bool forwardSuccess,) = NameSetterUtils._setForwardResolutionInternal(chainId, contractAddress, fullName);
-        require(forwardSuccess, "NameSetter: forward resolution failed");
-        return forwardSuccess;
+        // Route to Base-specific logic for Base chains
+        if (chainId == CommonUtils.BASE_MAINNET || chainId == CommonUtils.BASE_SEPOLIA) {
+            (bool baseForwardSuccess,) = BasenameSetter.setForwardResolution(chainId, contractAddress, fullName);
+            require(baseForwardSuccess, "NameSetter: forward resolution failed");
+            return baseForwardSuccess;
+        } else {
+            // Use L1 logic for other chains
+            (bool l1ForwardSuccess,) = L1NameSetter.setForwardResolution(chainId, contractAddress, fullName);
+            require(l1ForwardSuccess, "NameSetter: forward resolution failed");
+            return l1ForwardSuccess;
+        }
     }
 }
+
