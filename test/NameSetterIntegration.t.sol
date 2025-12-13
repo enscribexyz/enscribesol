@@ -27,7 +27,7 @@ contract EnsIntegrationTest is Test {
     uint256 internal constant CHAIN_ID = 31337;
 
     function setUp() public {
-        harness = new NameSetterIntegrationHarness();
+        harness = new EnsIntegrationHarness();
         helloWorld = new HelloWorld("Hello, world!", 0);
     }
 

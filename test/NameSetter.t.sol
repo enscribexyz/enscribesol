@@ -5,9 +5,9 @@ import {Test} from "forge-std/Test.sol";
 import {Ens} from "../src/Ens.sol";
 import {CommonUtils} from "../src/CommonUtils.sol";
 
-/// @title NameSetterWrapper
+/// @title EnsWrapper
 /// @notice Wrapper contract to test library functions
-contract NameSetterWrapper {
+contract EnsWrapper {
     function splitName(string memory fullName) external pure returns (string memory label, string memory parentName) {
         return CommonUtils.splitName(fullName);
     }
@@ -17,13 +17,13 @@ contract NameSetterWrapper {
     }
 }
 
-/// @title NameSetterTest
-/// @notice Test contract for NameSetter library utility functions
-contract NameSetterTest is Test {
-    NameSetterWrapper wrapper;
+/// @title EnsTest
+/// @notice Test contract for Ens library utility functions
+contract EnsTest is Test {
+    EnsWrapper wrapper;
 
     function setUp() public {
-        wrapper = new NameSetterWrapper();
+        wrapper = new EnsWrapper();
     }
     /// @notice Test splitName function with various inputs
     function test_SplitName_Simple() public {
