@@ -48,7 +48,7 @@ library BasenameSetter {
         }
 
         bytes32 reverseNode;
-        try IReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
+        try IL2ReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
             reverseNode = node;
         } catch {
             return false;
@@ -89,7 +89,7 @@ library BasenameSetter {
         }
 
         bytes32 reverseNode;
-        try IReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
+        try IL2ReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
             reverseNode = node;
         } catch {
             return "";
@@ -207,7 +207,7 @@ library BasenameSetter {
         }
         
         // Call nameForAddr on the L2 reverse registrar
-        try IReverseRegistrar(reverseRegistrar).nameForAddr(addr) returns (string memory existingName) {
+        try IL2ReverseRegistrar(reverseRegistrar).nameForAddr(addr) returns (string memory existingName) {
             // Compare the returned name with the target name
             return keccak256(bytes(existingName)) == keccak256(bytes(targetName));
         } catch {
@@ -268,7 +268,7 @@ library BasenameSetter {
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
         require(resolverAddr != address(0), "Ens: resolver not set for node");
 
-        try IReverseRegistrar(reverseRegistrar).setNameForAddr(addr, msg.sender, resolverAddr, name) {
+        try IL2ReverseRegistrar(reverseRegistrar).setNameForAddr(addr, name) {
             return true;
         } catch {
             return false;

@@ -13,7 +13,7 @@ contract HelloWorldSetNameForExisting is Script {
 
         // Register primary name for already deployed contract using Ens
         // Ens.setName(block.chainid, 0x7f9E2Cdd7cFC02622eD63D498D869bEA90AE87D1, "enscribesolfwdres11.abhi.eth");
-        Ens.setName(block.chainid, 0xAC2D499D279aDF958E3F1c1E75886B3f59E141ab, "enscribesolbasetest2.abhi.basetest.eth");
+        Ens.setName(block.chainid, 0x70D8238359f1F756EcaA915D788F833FB2C61441, "enscribesolbasetest3.abhi.basetest.eth");
 
         vm.stopBroadcast();
     }

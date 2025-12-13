@@ -10,6 +10,14 @@ interface IReverseRegistrar {
     function nameForAddr(address addr) external view returns (string memory);
 }
 
+/// @title IReverseRegistrar
+/// @notice Interface for ENS ReverseRegistrar contract
+interface IL2ReverseRegistrar {
+    function setNameForAddr(address addr, string calldata name) external;
+    function node(address addr) external view returns (bytes32);
+    function nameForAddr(address addr) external view returns (string memory);
+}
+
 /// @title IENSRegistry
 /// @notice Interface for ENS Registry contract
 interface IENSRegistry {
@@ -245,6 +253,7 @@ library CommonUtils {
         if (resolver == address(0)) {
             resolver = getPublicResolver(chainId);
         }
+        return resolver;
     }
 
     /// @notice Checks if an ENS name is wrapped
