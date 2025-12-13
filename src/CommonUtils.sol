@@ -68,7 +68,7 @@ library CommonUtils {
     function splitName(string memory fullName) internal pure returns (string memory label, string memory parentName) {
         bytes memory nameBytes = bytes(fullName);
         uint256 len = nameBytes.length;
-        require(len > 0, "NameSetter: name cannot be empty");
+        require(len > 0, "Ens: name cannot be empty");
         
         // Find the first dot
         uint256 dotIndex = len;
@@ -79,9 +79,9 @@ library CommonUtils {
             }
         }
         
-        require(dotIndex < len, "NameSetter: name must contain a dot");
-        require(dotIndex > 0, "NameSetter: label cannot be empty");
-        require(dotIndex < len - 1, "NameSetter: parent name cannot be empty");
+        require(dotIndex < len, "Ens: name must contain a dot");
+        require(dotIndex > 0, "Ens: label cannot be empty");
+        require(dotIndex < len - 1, "Ens: parent name cannot be empty");
         
         // Extract label (left part)
         bytes memory labelBytes = new bytes(dotIndex);
@@ -142,8 +142,22 @@ library CommonUtils {
     /// @notice Gets the ENS Registry address
     /// @dev Returns the ENS Registry address which is same for all chains
     /// @return registry The address of the ENS Registry contract
-    function getRegistry() internal pure returns (address registry) {
-        return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+    function getRegistry(uint256 chainId) internal pure returns (address registry) {
+        if (chainId == ETHEREUM_MAINNET) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == SEPOLIA) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == OPTIMISM) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == ARBITRUM_ONE) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == BASE_MAINNET) {
+            return 0xB94704422c2a1E396835A571837Aa5AE53285a95;
+        } else if (chainId == BASE_SEPOLIA) {
+            return 0x1493b2567056c2181630115660963E13A8E32735;
+        } else {
+            return address(0);
+        }
     }
 
     /// @notice Gets the Public Resolver address for a given chain ID
@@ -211,11 +225,12 @@ library CommonUtils {
     }
 
     /// @notice Gets the resolver address for a given ENS node
+    /// @param chainId The chain ID
     /// @param node The ENS node
     /// @return resolver The resolver address for the node
-    function getResolver(bytes32 node) internal view returns (address resolver) {
-        address registry = getRegistry();
-        require(registry != address(0), "NameSetter: unsupported chainId");
+    function getResolver(uint256 chainId, bytes32 node) internal view returns (address resolver) {
+        address registry = getRegistry(chainId);
+        require(registry != address(0), "Ens: unsupported chainId");
         return IENSRegistry(registry).resolver(node);
     }
 
@@ -225,7 +240,7 @@ library CommonUtils {
     /// @param node The ENS node
     /// @return resolver The resolver address for the node (or public resolver if none set)
     function getResolverWithFallback(uint256 chainId, bytes32 node) internal view returns (address resolver) {
-        address registry = getRegistry();
+        address registry = getRegistry(chainId);
         resolver = IENSRegistry(registry).resolver(node);
         if (resolver == address(0)) {
             resolver = getPublicResolver(chainId);
@@ -253,10 +268,10 @@ library CommonUtils {
     /// @param node The ENS node
     /// @return isOwner Whether msg.sender is the owner
     function isSenderOwner(uint256 chainId, bytes32 node) internal view returns (bool isOwner) {
-        address registry = getRegistry();
+        address registry = getRegistry(chainId);
         address nameWrapper = getNameWrapper(chainId);
         
-        require(registry != address(0), "NameSetter: unsupported chainId");
+        require(registry != address(0), "Ens: unsupported chainId");
 
         if (isWrapped(chainId, node)) {
             return INameWrapper(nameWrapper).ownerOf(uint256(node)) == msg.sender;

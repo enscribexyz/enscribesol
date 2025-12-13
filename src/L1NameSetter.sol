@@ -15,17 +15,17 @@ library L1NameSetter {
     /// @param labelHash The hash of the label
     /// @return success Whether the operation succeeded
     function createSubname(uint256 chainId, bytes32 parentNode, string memory label, bytes32 labelHash) internal returns (bool success) {
-        address registry = CommonUtils.getRegistry();
+        address registry = CommonUtils.getRegistry(chainId);
         address nameWrapper = CommonUtils.getNameWrapper(chainId);
         
-        require(registry != address(0), "NameSetter: unsupported chainId");
+        require(registry != address(0), "Ens: unsupported chainId");
         
         // Get resolver from parent node according to ENSIP-10, fall back to public resolver if none set
         address resolver = IENSRegistry(registry).resolver(parentNode);
         if (resolver == address(0)) {
             resolver = CommonUtils.getPublicResolver(chainId);
         }
-        require(resolver != address(0), "NameSetter: resolver not set for parent node");
+        require(resolver != address(0), "Ens: resolver not set for parent node");
 
         // Compute the subname node
         bytes32 subnameNode = keccak256(abi.encodePacked(parentNode, labelHash));
@@ -55,7 +55,7 @@ library L1NameSetter {
         }
         
         // If subname exists but we don't own it, revert
-        require(!subnameExists, "NameSetter: subname already exists and is owned by another address");
+        require(!subnameExists, "Ens: subname already exists and is owned by another address");
 
         // Create the subname if it doesn't exist
         if (CommonUtils.isWrapped(chainId, parentNode)) {
@@ -96,7 +96,7 @@ library L1NameSetter {
             return true; // Already set correctly, skip
         }
         
-        require(resolverAddr != address(0), "NameSetter: resolver not set for node");
+        require(resolverAddr != address(0), "Ens: resolver not set for node");
         
         try IPublicResolver(resolverAddr).setAddr(node, coinType, addrBytes) {
             return true;
@@ -123,7 +123,7 @@ library L1NameSetter {
             }
             
             // Get the resolver for the reverse node
-            address registry = CommonUtils.getRegistry();
+            address registry = CommonUtils.getRegistry(chainId);
             if (registry == address(0)) {
                 return false;
             }
@@ -162,11 +162,11 @@ library L1NameSetter {
         }
         
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
-        require(reverseRegistrar != address(0), "NameSetter: reverseRegistrar not set for chainId");
+        require(reverseRegistrar != address(0), "Ens: reverseRegistrar not set for chainId");
 
         // Get resolver from node according to ENSIP-10, fall back to public resolver if none set
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
-        require(resolverAddr != address(0), "NameSetter: resolver not set for node");
+        require(resolverAddr != address(0), "Ens: resolver not set for node");
 
         try IReverseRegistrar(reverseRegistrar).setNameForAddr(addr, msg.sender, resolverAddr, name) {
             return true;
@@ -192,15 +192,15 @@ library L1NameSetter {
         bytes32 labelHash = keccak256(bytes(label));
         node = keccak256(abi.encodePacked(parentNode, labelHash));
 
-        require(CommonUtils.isSenderOwner(chainId, parentNode), "NameSetter: sender is not the owner of parent node");
-        require(createSubname(chainId, parentNode, label, labelHash), "NameSetter: subname creation failed");
+        require(CommonUtils.isSenderOwner(chainId, parentNode), "Ens: sender is not the owner of parent node");
+        require(createSubname(chainId, parentNode, label, labelHash), "Ens: subname creation failed");
 
         // Get resolver from node according to ENSIP-10, fall back to public resolver if none set
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
 
         // Get the appropriate coin type for the chain
         uint256 coinType = CommonUtils.getCoinType(chainId);
-        require(setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)), "NameSetter: setAddr, forward resolution failed");
+        require(setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)), "Ens: setAddr, forward resolution failed");
         return (true, node);
     }
 
@@ -216,10 +216,10 @@ library L1NameSetter {
         string memory fullName
     ) internal returns (bool success) {
         (bool forwardSuccess, bytes32 node) = setForwardResolution(chainId, contractAddress, fullName);
-        require(forwardSuccess, "NameSetter: forward resolution failed");
+        require(forwardSuccess, "Ens: forward resolution failed");
         
         // After forward resolution succeeds, set reverse/primary name
-        require(setReverseResolution(chainId, contractAddress, node, fullName), "NameSetter: setReverseResolution failed");
+        require(setReverseResolution(chainId, contractAddress, node, fullName), "Ens: setReverseResolution failed");
         
         return true;
     }

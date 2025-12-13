@@ -44,12 +44,12 @@ library Ens {
         // Route to Base-specific logic for Base chains
         if (chainId == CommonUtils.BASE_MAINNET || chainId == CommonUtils.BASE_SEPOLIA) {
             (bool baseForwardSuccess,) = BasenameSetter.setForwardResolution(chainId, contractAddress, fullName);
-            require(baseForwardSuccess, "NameSetter: forward resolution failed");
+            require(baseForwardSuccess, "Ens: forward resolution failed");
             return baseForwardSuccess;
         } else {
             // Use L1 logic for other chains
             (bool l1ForwardSuccess,) = L1NameSetter.setForwardResolution(chainId, contractAddress, fullName);
-            require(l1ForwardSuccess, "NameSetter: forward resolution failed");
+            require(l1ForwardSuccess, "Ens: forward resolution failed");
             return l1ForwardSuccess;
         }
     }

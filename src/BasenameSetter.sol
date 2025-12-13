@@ -23,10 +23,10 @@ library BasenameSetter {
     ) internal returns (bool success) {
         // Step 1: Create subname and set forward resolution
         (bool forwardSuccess, bytes32 node) = setForwardResolution(chainId, contractAddress, fullName);
-        require(forwardSuccess, "NameSetter: forward resolution failed");
+        require(forwardSuccess, "Ens: forward resolution failed");
         
         // Step 2: Set reverse/primary name
-        require(setReverseResolution(chainId, contractAddress, node, fullName), "NameSetter: setReverseResolution failed");
+        require(setReverseResolution(chainId, contractAddress, node, fullName), "Ens: setReverseResolution failed");
         
         return true;
     }
@@ -41,7 +41,7 @@ library BasenameSetter {
         address contractAddress,
         string memory targetBasename
     ) internal view returns (bool matches) {
-        // Get the reverse node for the contract address using NameSetterUtils
+        // Get the reverse node for the contract address
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         if (reverseRegistrar == address(0)) {
             return false;
@@ -59,7 +59,7 @@ library BasenameSetter {
             return false;
         }
 
-        // Get the resolver for the reverse node using NameSetterUtils
+        // Get the resolver for the reverse node
         address resolverAddr = CommonUtils.getPublicResolver(chainId);
         if (resolverAddr == address(0)) {
             return false;
@@ -82,7 +82,7 @@ library BasenameSetter {
         uint256 chainId,
         address contractAddress
     ) internal view returns (string memory basename) {
-        // Get the reverse node for the contract address using NameSetterUtils
+        // Get the reverse node for the contract address
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         if (reverseRegistrar == address(0)) {
             return "";
@@ -100,7 +100,7 @@ library BasenameSetter {
             return "";
         }
 
-        // Get the resolver for the reverse node using NameSetterUtils
+        // Get the resolver for the reverse node
         address resolverAddr = CommonUtils.getPublicResolver(chainId);
         if (resolverAddr == address(0)) {
             return "";
@@ -122,11 +122,11 @@ library BasenameSetter {
     /// @param labelHash The hash of the label
     /// @return success Whether the operation succeeded
     function createSubname(uint256 chainId, bytes32 parentNode, bytes32 labelHash) internal returns (bool success) {
-        address registry = CommonUtils.getRegistry();
+        address registry = CommonUtils.getRegistry(chainId);
         address publicResolver = CommonUtils.getPublicResolver(chainId);
         
-        require(registry != address(0), "NameSetter: unsupported chainId");
-        require(publicResolver != address(0), "NameSetter: public resolver not set for Base chain");
+        require(registry != address(0), "Ens: unsupported chainId");
+        require(publicResolver != address(0), "Ens: public resolver not set for Base chain");
 
         // Get resolver from parent node according to ENSIP-10
         address resolver = IENSRegistry(registry).resolver(parentNode);
@@ -148,7 +148,7 @@ library BasenameSetter {
         }
         
         // If subname exists but we don't own it, revert
-        require(!subnameExists, "NameSetter: subname already exists and is owned by another address");
+        require(!subnameExists, "Ens: subname already exists and is owned by another address");
 
         // Create subname using L2 registry with resolver from parent node (or public resolver fallback)
         IENSRegistry(registry).setSubnodeRecord(parentNode, labelHash, msg.sender, resolver, 0);
@@ -185,7 +185,7 @@ library BasenameSetter {
             return true; // Already set correctly, skip
         }
         
-        require(resolverAddr != address(0), "NameSetter: resolver not set for node");
+        require(resolverAddr != address(0), "Ens: resolver not set for node");
         
         try IPublicResolver(resolverAddr).setAddr(node, coinType, addrBytes) {
             return true;
@@ -232,15 +232,15 @@ library BasenameSetter {
         bytes32 labelHash = keccak256(bytes(label));
         node = keccak256(abi.encodePacked(parentNode, labelHash));
 
-        require(CommonUtils.isSenderOwner(chainId, parentNode), "NameSetter: sender is not the owner of parent node");
-        require(createSubname(chainId, parentNode, labelHash), "NameSetter: subname creation failed");
+        require(CommonUtils.isSenderOwner(chainId, parentNode), "Ens: sender is not the owner of parent node");
+        require(createSubname(chainId, parentNode, labelHash), "Ens: subname creation failed");
 
         // Get resolver from node according to ENSIP-10, fall back to public resolver if none set
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
 
         // Get the appropriate coin type for the chain
         uint256 coinType = CommonUtils.getCoinType(chainId);
-        require(setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)), "NameSetter: setAddr, forward resolution failed");
+        require(setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)), "Ens: setAddr, forward resolution failed");
         return (true, node);
     }
 
@@ -262,11 +262,11 @@ library BasenameSetter {
         }
         
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
-        require(reverseRegistrar != address(0), "NameSetter: reverseRegistrar not set for Base chain");
+        require(reverseRegistrar != address(0), "Ens: reverseRegistrar not set for Base chain");
 
         // Get resolver from node according to ENSIP-10, fall back to public resolver if none set
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
-        require(resolverAddr != address(0), "NameSetter: resolver not set for node");
+        require(resolverAddr != address(0), "Ens: resolver not set for node");
 
         try IReverseRegistrar(reverseRegistrar).setNameForAddr(addr, msg.sender, resolverAddr, name) {
             return true;

@@ -6,7 +6,7 @@ import {Ens} from "../src/Ens.sol";
 import {HelloWorld} from "../src/HelloWorld.sol";
 
 /// @title HelloWorldDeployScript
-/// @notice Forge script to deploy HelloWorld and set its ENS primary name via NameSetter
+/// @notice Forge script to deploy HelloWorld and set its ENS primary name
 contract HelloWorldSetNameForExisting is Script {
     function run() public {
         vm.startBroadcast();

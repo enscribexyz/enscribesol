@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title HelloWorld
-/// @notice Ownable hello-world style contract used for integration testing with NameSetter
+/// @notice Ownable hello-world style contract used for integration testing with Ens
 contract HelloWorld is Ownable {
     string greetings;
     uint256 count;
