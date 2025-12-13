@@ -218,7 +218,7 @@ library CommonUtils {
         } else if (chainId == BASE_MAINNET) {
             return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
         } else if (chainId == BASE_SEPOLIA) {
-            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
+            return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
         } else {
             return address(0);
         }
