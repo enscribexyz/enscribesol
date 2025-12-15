@@ -18,5 +18,3 @@ contract HelloWorldSetNameForExisting is Script {
         vm.stopBroadcast();
     }
 }
-
-

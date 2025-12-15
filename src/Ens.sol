@@ -16,11 +16,10 @@ library Ens {
     /// @param contractAddress The contract address to name
     /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
     /// @return success Whether the operation succeeded
-    function setName(
-        uint256 chainId,
-        address contractAddress,
-        string memory fullName
-    ) internal returns (bool success) {
+    function setName(uint256 chainId, address contractAddress, string memory fullName)
+        internal
+        returns (bool success)
+    {
         // Route to Base-specific logic for Base chains
         if (chainId == CommonUtils.BASE_MAINNET || chainId == CommonUtils.BASE_SEPOLIA) {
             return BasenameSetter.setName(chainId, contractAddress, fullName);
@@ -36,11 +35,10 @@ library Ens {
     /// @param contractAddress The contract address to set in the address record
     /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
     /// @return success Whether the operation succeeded
-    function setForwardResolution(
-        uint256 chainId,
-        address contractAddress,
-        string memory fullName
-    ) internal returns (bool success) {
+    function setForwardResolution(uint256 chainId, address contractAddress, string memory fullName)
+        internal
+        returns (bool success)
+    {
         // Route to Base-specific logic for Base chains
         if (chainId == CommonUtils.BASE_MAINNET || chainId == CommonUtils.BASE_SEPOLIA) {
             (bool baseForwardSuccess,) = BasenameSetter.setForwardResolution(chainId, contractAddress, fullName);
@@ -54,4 +52,3 @@ library Ens {
         }
     }
 }
-

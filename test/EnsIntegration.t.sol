@@ -8,11 +8,7 @@ import {HelloWorld} from "../src/HelloWorld.sol";
 /// @title EnsIntegrationHarness
 /// @notice Simple harness contract that exposes the Ens library for integration tests
 contract EnsIntegrationHarness {
-    function setContractName(
-        uint256 chainId,
-        address contractAddress,
-        string calldata fullName
-    ) external {
+    function setContractName(uint256 chainId, address contractAddress, string calldata fullName) external {
         Ens.setName(chainId, contractAddress, fullName);
     }
 }
@@ -52,5 +48,3 @@ contract EnsIntegrationTest is Test {
         assertTrue(true, "setName completed without revert");
     }
 }
-
-

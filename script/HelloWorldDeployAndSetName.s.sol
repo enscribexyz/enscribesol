@@ -21,5 +21,3 @@ contract HelloWorldDeployAndSetNameScript is Script {
         vm.stopBroadcast();
     }
 }
-
-

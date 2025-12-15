@@ -16,19 +16,18 @@ library BasenameSetter {
     /// @param contractAddress The contract address to name
     /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
     /// @return success Whether the operation succeeded
-    function setName(
-        uint256 chainId,
-        address contractAddress,
-        string memory fullName
-    ) internal returns (bool success) {
+    function setName(uint256 chainId, address contractAddress, string memory fullName)
+        internal
+        returns (bool success)
+    {
         require(contractAddress != address(0), "Ens: contractAddress cannot be zero");
         // Step 1: Create subname and set forward resolution
         (bool forwardSuccess, bytes32 node) = setForwardResolution(chainId, contractAddress, fullName);
         require(forwardSuccess, "Ens: forward resolution failed");
-        
+
         // Step 2: Set reverse/primary name
         require(setReverseResolution(chainId, contractAddress, node, fullName), "Ens: setReverseResolution failed");
-        
+
         return true;
     }
 
@@ -37,11 +36,11 @@ library BasenameSetter {
     /// @param contractAddress The contract address to check
     /// @param targetBasename The basename to compare against
     /// @return matches Whether the existing basename matches the target
-    function basenameMatches(
-        uint256 chainId,
-        address contractAddress,
-        string memory targetBasename
-    ) internal view returns (bool matches) {
+    function basenameMatches(uint256 chainId, address contractAddress, string memory targetBasename)
+        internal
+        view
+        returns (bool matches)
+    {
         // Get the reverse node for the contract address
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         if (reverseRegistrar == address(0)) {
@@ -79,10 +78,7 @@ library BasenameSetter {
     /// @param chainId The chain ID to determine which ENS contracts to use
     /// @param contractAddress The contract address to get the basename for
     /// @return basename The basename if it exists, empty string otherwise
-    function getBasename(
-        uint256 chainId,
-        address contractAddress
-    ) internal view returns (string memory basename) {
+    function getBasename(uint256 chainId, address contractAddress) internal view returns (string memory basename) {
         // Get the reverse node for the contract address
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         if (reverseRegistrar == address(0)) {
@@ -125,7 +121,7 @@ library BasenameSetter {
     function createSubname(uint256 chainId, bytes32 parentNode, bytes32 labelHash) internal returns (bool success) {
         address registry = CommonUtils.getRegistry(chainId);
         address publicResolver = CommonUtils.getPublicResolver(chainId);
-        
+
         require(registry != address(0), "Ens: unsupported chainId");
         require(publicResolver != address(0), "Ens: public resolver not set for Base chain");
 
@@ -138,16 +134,16 @@ library BasenameSetter {
 
         // Compute the subname node
         bytes32 subnameNode = keccak256(abi.encodePacked(parentNode, labelHash));
-        
+
         // Check if subname already exists
         address existingOwner = IENSRegistry(registry).owner(subnameNode);
         bool subnameExists = (existingOwner != address(0));
-        
+
         // If subname exists and we own it, skip creation
         if (subnameExists && existingOwner == msg.sender) {
             return true;
         }
-        
+
         // If subname exists but we don't own it, revert
         require(!subnameExists, "Ens: subname already exists and is owned by another address");
 
@@ -162,11 +158,15 @@ library BasenameSetter {
     /// @param coinType The coin type (60 for ETH)
     /// @param targetAddrBytes The target address as bytes
     /// @return matches Whether the existing address matches the target
-    function addrMatches(address resolverAddr, bytes32 node, uint256 coinType, bytes memory targetAddrBytes) internal view returns (bool matches) {
+    function addrMatches(address resolverAddr, bytes32 node, uint256 coinType, bytes memory targetAddrBytes)
+        internal
+        view
+        returns (bool matches)
+    {
         if (resolverAddr == address(0)) {
             return false;
         }
-        
+
         try IPublicResolver(resolverAddr).addr(node, coinType) returns (bytes memory existingAddrBytes) {
             return keccak256(existingAddrBytes) == keccak256(targetAddrBytes);
         } catch {
@@ -180,14 +180,17 @@ library BasenameSetter {
     /// @param coinType The coin type (60 for ETH)
     /// @param addrBytes The address as bytes
     /// @return success Whether the operation succeeded
-    function setAddr(address resolverAddr, bytes32 node, uint256 coinType, bytes memory addrBytes) internal returns (bool success) {
+    function setAddr(address resolverAddr, bytes32 node, uint256 coinType, bytes memory addrBytes)
+        internal
+        returns (bool success)
+    {
         // Check if address record already exists and matches
         if (addrMatches(resolverAddr, node, coinType, addrBytes)) {
             return true; // Already set correctly, skip
         }
-        
+
         require(resolverAddr != address(0), "Ens: resolver not set for node");
-        
+
         try IPublicResolver(resolverAddr).setAddr(node, coinType, addrBytes) {
             return true;
         } catch {
@@ -200,13 +203,17 @@ library BasenameSetter {
     /// @param addr The address to check
     /// @param targetName The target name to compare against
     /// @return matches Whether the existing name matches the target
-    function primaryNameMatches(uint256 chainId, address addr, string memory targetName) internal view returns (bool matches) {
+    function primaryNameMatches(uint256 chainId, address addr, string memory targetName)
+        internal
+        view
+        returns (bool matches)
+    {
         // Get the L2 reverse registrar for the chain
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         if (reverseRegistrar == address(0)) {
             return false;
         }
-        
+
         // Call nameForAddr on the L2 reverse registrar
         try IL2ReverseRegistrar(reverseRegistrar).nameForAddr(addr) returns (string memory existingName) {
             // Compare the returned name with the target name
@@ -223,11 +230,10 @@ library BasenameSetter {
     /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
     /// @return success Whether the operation succeeded
     /// @return node The computed ENS node
-    function setForwardResolution(
-        uint256 chainId,
-        address contractAddress,
-        string memory fullName
-    ) internal returns (bool success, bytes32 node) {
+    function setForwardResolution(uint256 chainId, address contractAddress, string memory fullName)
+        internal
+        returns (bool success, bytes32 node)
+    {
         require(contractAddress != address(0), "Ens: contractAddress cannot be zero");
         (string memory label, string memory parentName) = CommonUtils.splitName(fullName);
         bytes32 parentNode = CommonUtils.namehash(parentName);
@@ -242,7 +248,10 @@ library BasenameSetter {
 
         // Get the appropriate coin type for the chain
         uint256 coinType = CommonUtils.getCoinType(chainId);
-        require(setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)), "Ens: setAddr, forward resolution failed");
+        require(
+            setAddr(resolverAddr, node, coinType, abi.encodePacked(contractAddress)),
+            "Ens: setAddr, forward resolution failed"
+        );
         return (true, node);
     }
 
@@ -252,17 +261,15 @@ library BasenameSetter {
     /// @param node The forward resolution node for the ENS name
     /// @param name The full ENS name (e.g., "sub.domain.eth")
     /// @return success Whether the operation succeeded
-    function setReverseResolution(
-        uint256 chainId,
-        address addr,
-        bytes32 node,
-        string memory name
-    ) internal returns (bool success) {
+    function setReverseResolution(uint256 chainId, address addr, bytes32 node, string memory name)
+        internal
+        returns (bool success)
+    {
         // Check if primary name already exists and matches
         if (primaryNameMatches(chainId, addr, name)) {
             return true; // Already set correctly, skip
         }
-        
+
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
         require(reverseRegistrar != address(0), "Ens: reverseRegistrar not set for Base chain");
 
@@ -276,5 +283,4 @@ library BasenameSetter {
             return false;
         }
     }
-
 }

@@ -45,7 +45,15 @@ interface IPublicResolver {
 interface INameWrapper {
     function ownerOf(uint256 tokenId) external view returns (address);
     function isWrapped(bytes32 node) external view returns (bool);
-    function setSubnodeRecord(bytes32 node, string calldata label, address owner, address resolver, uint64 ttl, uint32 fuses, uint64 expiry) external;
+    function setSubnodeRecord(
+        bytes32 node,
+        string calldata label,
+        address owner,
+        address resolver,
+        uint64 ttl,
+        uint32 fuses,
+        uint64 expiry
+    ) external;
 }
 
 /// @title CommonUtils
@@ -53,22 +61,22 @@ interface INameWrapper {
 library CommonUtils {
     /// @notice Ethereum Mainnet chain ID
     uint256 public constant ETHEREUM_MAINNET = 1;
-    
+
     /// @notice Sepolia testnet chain ID
     uint256 public constant SEPOLIA = 11155111;
-    
+
     /// @notice Optimism chain ID
     uint256 public constant OPTIMISM_MAINNET = 10;
 
     /// @notice Optimism Sepolia chain ID
     uint256 public constant OPTIMISM_SEPOLIA = 11155420;
-    
+
     /// @notice Arbitrum One chain ID
     uint256 public constant ARBITRUM_MAINNET = 42161;
 
     /// @notice Arbitrum Sepolia chain ID
     uint256 public constant ARBITRUM_SEPOLIA = 421614;
-    
+
     /// @notice Scroll chain ID
     uint256 public constant SCROLL_MAINNET = 534352;
 
@@ -77,7 +85,7 @@ library CommonUtils {
 
     /// @notice Base Mainnet chain ID
     uint256 public constant BASE_MAINNET = 8453;
-    
+
     /// @notice Base Sepolia chain ID
     uint256 public constant BASE_SEPOLIA = 84532;
 
@@ -86,7 +94,6 @@ library CommonUtils {
 
     /// @notice Linea Sepolia chain ID
     uint256 public constant LINEA_SEPOLIA = 59141;
-    
 
     /// @notice Splits a full ENS name into label and parent name
     /// @dev Finds the first dot and splits the name (e.g., "myname.eth" -> "myname", "eth")
@@ -97,27 +104,28 @@ library CommonUtils {
         bytes memory nameBytes = bytes(fullName);
         uint256 len = nameBytes.length;
         require(len > 0, "Ens: name cannot be empty");
-        
+
         // Find the first dot
         uint256 dotIndex = len;
         for (uint256 i = 0; i < len; i++) {
-            if (nameBytes[i] == 0x2e) { // '.' character
+            if (nameBytes[i] == 0x2e) {
+                // '.' character
                 dotIndex = i;
                 break;
             }
         }
-        
+
         require(dotIndex < len, "Ens: name must contain a dot");
         require(dotIndex > 0, "Ens: label cannot be empty");
         require(dotIndex < len - 1, "Ens: parent name cannot be empty");
-        
+
         // Extract label (left part)
         bytes memory labelBytes = new bytes(dotIndex);
         for (uint256 i = 0; i < dotIndex; i++) {
             labelBytes[i] = nameBytes[i];
         }
         label = string(labelBytes);
-        
+
         // Extract parent name (right part, excluding the dot)
         bytes memory parentBytes = new bytes(len - dotIndex - 1);
         for (uint256 i = 0; i < parentBytes.length; i++) {
@@ -135,15 +143,16 @@ library CommonUtils {
         if (bytes(name).length == 0) {
             return node;
         }
-        
+
         // Split the name by dots and process from right to left
         bytes memory nameBytes = bytes(name);
         uint256 len = nameBytes.length;
         uint256 labelStart = len;
-        
+
         // Process labels from right to left
         for (uint256 i = len; i > 0; i--) {
-            if (nameBytes[i - 1] == 0x2e) { // '.' character
+            if (nameBytes[i - 1] == 0x2e) {
+                // '.' character
                 if (labelStart > i) {
                     bytes memory label = new bytes(labelStart - i);
                     for (uint256 j = 0; j < label.length; j++) {
@@ -154,7 +163,7 @@ library CommonUtils {
                 labelStart = i - 1;
             }
         }
-        
+
         // Process the last (leftmost) label
         if (labelStart > 0) {
             bytes memory label = new bytes(labelStart);
@@ -163,7 +172,7 @@ library CommonUtils {
             }
             node = keccak256(abi.encodePacked(node, keccak256(label)));
         }
-        
+
         return node;
     }
 
@@ -349,7 +358,7 @@ library CommonUtils {
     function isSenderOwner(uint256 chainId, bytes32 node) internal view returns (bool isOwner) {
         address registry = getRegistry(chainId);
         address nameWrapper = getNameWrapper(chainId);
-        
+
         require(registry != address(0), "Ens: unsupported chainId");
 
         if (isWrapped(chainId, node)) {
@@ -392,4 +401,3 @@ library CommonUtils {
         }
     }
 }
-

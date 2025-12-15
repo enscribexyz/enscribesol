@@ -23,6 +23,3 @@ contract HelloWorld is Ownable {
         return greetings;
     }
 }
-
-
-

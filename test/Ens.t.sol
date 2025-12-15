@@ -26,6 +26,7 @@ contract EnsTest is Test {
         wrapper = new EnsWrapper();
     }
     /// @notice Test splitName function with various inputs
+
     function test_SplitName_Simple() public {
         (string memory label, string memory parentName) = wrapper.splitName("myname.eth");
         assertEq(label, "myname");
@@ -110,7 +111,7 @@ contract EnsTest is Test {
         // These are standard ENS namehash calculations
         bytes32 ethNode = wrapper.namehash("eth");
         bytes32 testNode = wrapper.namehash("test.eth");
-        
+
         // Verify the structure is correct
         bytes32 expectedTestNode = keccak256(abi.encodePacked(ethNode, keccak256(bytes("test"))));
         assertEq(testNode, expectedTestNode);
@@ -188,7 +189,7 @@ contract EnsTest is Test {
         bytes32 parentNode = wrapper.namehash(parentName);
         bytes32 labelHash = keccak256(bytes(label));
         bytes32 expectedNode = keccak256(abi.encodePacked(parentNode, labelHash));
-        
+
         bytes32 fullNameNode = wrapper.namehash("myname.eth");
         assertEq(fullNameNode, expectedNode);
     }
@@ -198,7 +199,7 @@ contract EnsTest is Test {
         // Skip if either part is empty or contains dots
         if (bytes(label).length == 0 || bytes(parentName).length == 0) return;
         if (bytes(label).length > 100 || bytes(parentName).length > 100) return;
-        
+
         // Check if label or parentName contains dots (would break our simple split)
         bytes memory labelBytes = bytes(label);
         bytes memory parentBytes = bytes(parentName);
@@ -208,12 +209,11 @@ contract EnsTest is Test {
         for (uint256 i = 0; i < parentBytes.length; i++) {
             if (parentBytes[i] == 0x2e) return; // contains dot
         }
-        
+
         string memory fullName = string(abi.encodePacked(label, ".", parentName));
         (string memory splitLabel, string memory splitParent) = wrapper.splitName(fullName);
-        
+
         assertEq(splitLabel, label);
         assertEq(splitParent, parentName);
     }
 }
-
