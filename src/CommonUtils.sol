@@ -58,16 +58,36 @@ library CommonUtils {
     uint256 public constant SEPOLIA = 11155111;
     
     /// @notice Optimism chain ID
-    uint256 public constant OPTIMISM = 10;
+    uint256 public constant OPTIMISM_MAINNET = 10;
+
+    /// @notice Optimism Sepolia chain ID
+    uint256 public constant OPTIMISM_SEPOLIA = 11155420;
     
     /// @notice Arbitrum One chain ID
-    uint256 public constant ARBITRUM_ONE = 42161;
+    uint256 public constant ARBITRUM_MAINNET = 42161;
+
+    /// @notice Arbitrum Sepolia chain ID
+    uint256 public constant ARBITRUM_SEPOLIA = 421614;
     
+    /// @notice Scroll chain ID
+    uint256 public constant SCROLL_MAINNET = 534352;
+
+    /// @notice Scroll Sepolia chain ID
+    uint256 public constant SCROLL_SEPOLIA = 534351;
+
     /// @notice Base Mainnet chain ID
     uint256 public constant BASE_MAINNET = 8453;
     
     /// @notice Base Sepolia chain ID
     uint256 public constant BASE_SEPOLIA = 84532;
+
+    /// @notice Linea Mainnet chain ID
+    uint256 public constant LINEA_MAINNET = 59144;
+
+    /// @notice Linea Sepolia chain ID
+    uint256 public constant LINEA_SEPOLIA = 59141;
+    
+
     /// @notice Splits a full ENS name into label and parent name
     /// @dev Finds the first dot and splits the name (e.g., "myname.eth" -> "myname", "eth")
     /// @param fullName The full ENS name (e.g., "myname.eth")
@@ -155,14 +175,26 @@ library CommonUtils {
             return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
         } else if (chainId == SEPOLIA) {
             return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
-        } else if (chainId == OPTIMISM) {
+        } else if (chainId == OPTIMISM_MAINNET) {
             return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
-        } else if (chainId == ARBITRUM_ONE) {
+        } else if (chainId == OPTIMISM_SEPOLIA) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == ARBITRUM_MAINNET) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == ARBITRUM_SEPOLIA) {
             return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
         } else if (chainId == BASE_MAINNET) {
             return 0xB94704422c2a1E396835A571837Aa5AE53285a95;
         } else if (chainId == BASE_SEPOLIA) {
             return 0x1493b2567056c2181630115660963E13A8E32735;
+        } else if (chainId == SCROLL_MAINNET) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == SCROLL_SEPOLIA) {
+            return 0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e;
+        } else if (chainId == LINEA_MAINNET) {
+            return 0x50130b669B28C339991d8676FA73CF122a121267;
+        } else if (chainId == LINEA_SEPOLIA) {
+            return 0x5B2636F0f2137B4aE722C01dd5122D7d3e9541f7;
         } else {
             return address(0);
         }
@@ -177,14 +209,26 @@ library CommonUtils {
             return 0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63;
         } else if (chainId == SEPOLIA) {
             return 0xE99638b40E4Fff0129D56f03b55b6bbC4BBE49b5;
-        } else if (chainId == OPTIMISM) {
+        } else if (chainId == OPTIMISM_MAINNET) {
             return address(0);
-        } else if (chainId == ARBITRUM_ONE) {
+        } else if (chainId == OPTIMISM_SEPOLIA) {
+            return address(0);
+        } else if (chainId == ARBITRUM_MAINNET) {
+            return address(0);
+        } else if (chainId == ARBITRUM_SEPOLIA) {
             return address(0);
         } else if (chainId == BASE_MAINNET) {
             return 0xC6d566A56A1aFf6508b41f6c90ff131615583BCD;
         } else if (chainId == BASE_SEPOLIA) {
-            return 0xC6d566A56A1aFf6508b41f6c90ff131615583BCD;
+            return 0x6533C94869D28fAA8dF77cc63f9e2b2D6Cf77eBA;
+        } else if (chainId == SCROLL_MAINNET) {
+            return address(0);
+        } else if (chainId == SCROLL_SEPOLIA) {
+            return address(0);
+        } else if (chainId == LINEA_MAINNET) {
+            return 0x86c5AED9F27837074612288610fB98ccC1733126;
+        } else if (chainId == LINEA_SEPOLIA) {
+            return 0xA2008916Ed2d7ED0Ecd747a8a5309267e42cf1f1;
         } else {
             return address(0);
         }
@@ -199,11 +243,25 @@ library CommonUtils {
             return 0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401;
         } else if (chainId == SEPOLIA) {
             return 0x0635513f179D50A207757E05759CbD106d7dFcE8;
-        } else if (chainId == OPTIMISM) {
+        } else if (chainId == OPTIMISM_MAINNET) {
             return address(0);
-        } else if (chainId == ARBITRUM_ONE) {
+        } else if (chainId == OPTIMISM_SEPOLIA) {
+            return address(0);
+        } else if (chainId == ARBITRUM_MAINNET) {
+            return address(0);
+        } else if (chainId == ARBITRUM_SEPOLIA) {
             return address(0);
         } else if (chainId == BASE_MAINNET) {
+            return address(0);
+        } else if (chainId == BASE_SEPOLIA) {
+            return address(0);
+        } else if (chainId == SCROLL_MAINNET) {
+            return address(0);
+        } else if (chainId == SCROLL_SEPOLIA) {
+            return address(0);
+        } else if (chainId == LINEA_MAINNET) {
+            return address(0);
+        } else if (chainId == LINEA_SEPOLIA) {
             return address(0);
         } else {
             return address(0);
@@ -219,13 +277,25 @@ library CommonUtils {
             return 0xa58E81fe9b61B5c3fE2AFD33CF304c454AbFc7Cb;
         } else if (chainId == SEPOLIA) {
             return 0xA0a1AbcDAe1a2a4A2EF8e9113Ff0e02DD81DC0C6;
-        } else if (chainId == OPTIMISM) {
+        } else if (chainId == OPTIMISM_MAINNET) {
             return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
-        } else if (chainId == ARBITRUM_ONE) {
+        } else if (chainId == OPTIMISM_SEPOLIA) {
+            return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
+        } else if (chainId == ARBITRUM_MAINNET) {
             return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
+        } else if (chainId == ARBITRUM_SEPOLIA) {
+            return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
         } else if (chainId == BASE_MAINNET) {
             return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
         } else if (chainId == BASE_SEPOLIA) {
+            return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
+        } else if (chainId == SCROLL_MAINNET) {
+            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
+        } else if (chainId == SCROLL_SEPOLIA) {
+            return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
+        } else if (chainId == LINEA_MAINNET) {
+            return 0x0000000000D8e504002cC26E3Ec46D81971C1664;
+        } else if (chainId == LINEA_SEPOLIA) {
             return 0x00000BeEF055f7934784D6d81b6BC86665630dbA;
         } else {
             return address(0);
@@ -297,14 +367,26 @@ library CommonUtils {
             return 60;
         } else if (chainId == SEPOLIA) {
             return 60;
-        } else if (chainId == OPTIMISM) {
-            return 2147483658;
-        } else if (chainId == ARBITRUM_ONE) {
-            return 2147525809;
         } else if (chainId == BASE_MAINNET) {
             return 2147492101;
         } else if (chainId == BASE_SEPOLIA) {
             return 2147568180;
+        } else if (chainId == OPTIMISM_MAINNET) {
+            return 2147483658;
+        } else if (chainId == OPTIMISM_SEPOLIA) {
+            return 2158639068;
+        } else if (chainId == ARBITRUM_MAINNET) {
+            return 2147525809;
+        } else if (chainId == ARBITRUM_SEPOLIA) {
+            return 2147905262;
+        } else if (chainId == SCROLL_MAINNET) {
+            return 2148018000;
+        } else if (chainId == SCROLL_SEPOLIA) {
+            return 2148017999;
+        } else if (chainId == LINEA_MAINNET) {
+            return 2147542792;
+        } else if (chainId == LINEA_SEPOLIA) {
+            return 2147542789;
         } else {
             return 60;
         }

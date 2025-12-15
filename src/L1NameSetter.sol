@@ -187,6 +187,7 @@ library L1NameSetter {
         address contractAddress,
         string memory fullName
     ) internal returns (bool success, bytes32 node) {
+        require(contractAddress != address(0), "Ens: contractAddress cannot be zero");
         (string memory label, string memory parentName) = CommonUtils.splitName(fullName);
         bytes32 parentNode = CommonUtils.namehash(parentName);
         bytes32 labelHash = keccak256(bytes(label));
@@ -215,6 +216,7 @@ library L1NameSetter {
         address contractAddress,
         string memory fullName
     ) internal returns (bool success) {
+        require(contractAddress != address(0), "Ens: contractAddress cannot be zero");
         (bool forwardSuccess, bytes32 node) = setForwardResolution(chainId, contractAddress, fullName);
         require(forwardSuccess, "Ens: forward resolution failed");
         
