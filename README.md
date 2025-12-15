@@ -28,7 +28,7 @@ pragma solidity ^0.8.0;
 
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {Ens} from "enscribesol/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -76,7 +76,7 @@ function setName(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {Ens} from "enscribesol/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -122,7 +122,7 @@ function setForwardResolution(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {Ens} from "enscribesol/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
