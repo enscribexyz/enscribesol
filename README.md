@@ -1,4 +1,4 @@
-`enscribesol` is a Solidity library that provides a simple interface for assigning ENS names to contracts. It handles the complete ENS naming flow:
+`enscribe` is a Solidity library that provides a simple interface for assigning ENS names to contracts. It handles the complete ENS naming flow:
 
 - Subname creation under a parent domain
 - Forward resolution (name → address)
@@ -9,13 +9,13 @@
 The library can be installed as a dependency in your Foundry project:
 
 ```bash
-forge install enscribexyz/enscribesol
+forge install enscribexyz/enscribe
 ```
 
 Then add this to your `remappings.txt`:
 
 ```toml
-enscribesol/=lib/enscribesol/src/
+enscribe/=lib/enscribe/src/
 ```
 
 ## Quick Start
@@ -28,7 +28,7 @@ pragma solidity ^0.8.0;
 
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {Ens} from "enscribesol/Ens.sol";
+import {Ens} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -76,7 +76,7 @@ function setName(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {Ens} from "enscribesol/Ens.sol";
+import {Ens} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -122,7 +122,7 @@ function setForwardResolution(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {Ens} from "enscribesol/Ens.sol";
+import {Ens} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {

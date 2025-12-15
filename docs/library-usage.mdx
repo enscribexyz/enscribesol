@@ -17,13 +17,13 @@ The library automatically routes to the appropriate ENS contracts based on the c
 The library can be installed as a dependency in your Foundry project:
 
 ```bash
-forge install enscribexyz/enscribesol
+forge install enscribexyz/enscribe
 ```
 
 Then add this to your `remappings.txt`:
 
 ```toml
-enscribesol/=lib/enscribesol/src/
+enscribe/=lib/enscribe/src/
 ```
 
 ## Quick Start
@@ -36,7 +36,7 @@ pragma solidity ^0.8.0;
 
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {NameSetter} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -84,7 +84,7 @@ function setName(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {NameSetter} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {
@@ -130,7 +130,7 @@ function setForwardResolution(
 ```solidity
 import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
-import {NameSetter} from "enscribesol/Ens.sol";
+import {NameSetter} from "enscribe/Ens.sol";
 
 contract MyContractScript is Script {
     function run() public {

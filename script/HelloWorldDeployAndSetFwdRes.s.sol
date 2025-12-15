@@ -15,8 +15,8 @@ contract HelloWorldDeployAndSetFwdResScript is Script {
         HelloWorld hello = new HelloWorld("hi forge!", 0);
 
         // 2. Register primary name for the deployed contract using Ens
-        // Ens.setForwardResolution(block.chainid, address(hello), "enscribesolfwdres11.abhi.eth");
-        Ens.setForwardResolution(block.chainid, address(hello), "enscribesolbasetest3.abhi.basetest.eth");
+        // Ens.setForwardResolution(block.chainid, address(hello), "enscribefwdres11.abhi.eth");
+        Ens.setForwardResolution(block.chainid, address(hello), "enscribebasetest3.abhi.basetest.eth");
 
         vm.stopBroadcast();
     }
