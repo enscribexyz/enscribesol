@@ -35,11 +35,17 @@ contract MyContractScript is Script {
         vm.startBroadcast();
 
         counter = new Counter();
-        Ens.setName(block.chainid, address(counter), "mycontract.mydomain.eth");
+        Ens.setName(block.chainid, address(counter), "mycontract.mydomain.base.eth");
 
         vm.stopBroadcast();
     }
 }
+```
+
+You can now deploy and set the name on Base with `forge script`:
+
+```bash
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <BASE RPC URL> --chain-id 8453 --broadcast --private-key <PRIVATE KEY> -vvvv
 ```
 
 ## Public API
