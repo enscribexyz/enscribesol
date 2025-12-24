@@ -84,7 +84,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
 import {Ens} from "enscribe/Ens.sol";
 
-contract MyContractScript is Script {
+contract CounterScript is Script {
     function run() public {
         vm.startBroadcast();
 
@@ -130,7 +130,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {Counter} from "../src/Counter.sol";
 import {Ens} from "enscribe/Ens.sol";
 
-contract MyContractScript is Script {
+contract CounterScript is Script {
     function run() public {
         vm.startBroadcast();
 

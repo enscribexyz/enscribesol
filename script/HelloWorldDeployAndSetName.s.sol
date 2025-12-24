@@ -16,7 +16,7 @@ contract HelloWorldDeployAndSetNameScript is Script {
 
         // 2. Register primary name for the deployed contract using Ens
         // Ens.setName(block.chainid, address(hello), "enscribe2.abhi.eth");
-        Ens.setName(block.chainid, address(hello), "enscribebasetest4.abhi.basetest.eth");
+        Ens.setName(block.chainid, address(hello), "counter.abhi.eth");
 
         vm.stopBroadcast();
     }

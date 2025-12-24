@@ -3,15 +3,12 @@ pragma solidity ^0.8.0;
 
 import "./CommonUtils.sol";
 
-/// @title BasenameSetter
-/// @notice Library for setting basenames for contracts according to ENSIP-19
-/// @dev Basenames are stored as text records on the reverse node with key "basename"
-library BasenameSetter {
-    /// @notice Text record key for basename according to ENSIP-19
-    string public constant BASENAME_KEY = "basename";
-
-    /// @notice Sets name for Base chains (Base Mainnet, Base Sepolia)
-    /// @dev Creates a subname, sets forward resolution, sets reverse/primary name, and sets basename
+/// @title L2NameSetter
+/// @notice Library for setting L2 names for contracts according to ENSIP-19
+/// @dev Handles subname creation, forward resolution, and reverse resolution for L2 chains
+library L2NameSetter {
+    /// @notice Sets name for L2 chains with ENSIP-19
+    /// @dev Creates a subname, sets forward resolution, sets reverse/primary name
     /// @param chainId The chain ID
     /// @param contractAddress The contract address to name
     /// @param fullName The full ENS name (e.g., "myawesomeapp.mydomain.eth")
@@ -31,87 +28,7 @@ library BasenameSetter {
         return true;
     }
 
-    /// @notice Checks if the basename already exists and matches the target basename
-    /// @param chainId The chain ID to determine which ENS contracts to use
-    /// @param contractAddress The contract address to check
-    /// @param targetBasename The basename to compare against
-    /// @return matches Whether the existing basename matches the target
-    function basenameMatches(uint256 chainId, address contractAddress, string memory targetBasename)
-        internal
-        view
-        returns (bool matches)
-    {
-        // Get the reverse node for the contract address
-        address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
-        if (reverseRegistrar == address(0)) {
-            return false;
-        }
-
-        bytes32 reverseNode;
-        try IL2ReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
-            reverseNode = node;
-        } catch {
-            return false;
-        }
-
-        // If no reverse node exists, basename doesn't match
-        if (reverseNode == bytes32(0)) {
-            return false;
-        }
-
-        // Get the resolver for the reverse node
-        address resolverAddr = CommonUtils.getPublicResolver(chainId);
-        if (resolverAddr == address(0)) {
-            return false;
-        }
-
-        // Get the existing basename
-        try IPublicResolver(resolverAddr).text(reverseNode, BASENAME_KEY) returns (string memory existingBasename) {
-            // Compare basenames using hash (standard Solidity string comparison)
-            return keccak256(bytes(existingBasename)) == keccak256(bytes(targetBasename));
-        } catch {
-            return false;
-        }
-    }
-
-    /// @notice Gets the basename for a contract address
-    /// @param chainId The chain ID to determine which ENS contracts to use
-    /// @param contractAddress The contract address to get the basename for
-    /// @return basename The basename if it exists, empty string otherwise
-    function getBasename(uint256 chainId, address contractAddress) internal view returns (string memory basename) {
-        // Get the reverse node for the contract address
-        address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
-        if (reverseRegistrar == address(0)) {
-            return "";
-        }
-
-        bytes32 reverseNode;
-        try IL2ReverseRegistrar(reverseRegistrar).node(contractAddress) returns (bytes32 node) {
-            reverseNode = node;
-        } catch {
-            return "";
-        }
-
-        // If no reverse node exists, return empty string
-        if (reverseNode == bytes32(0)) {
-            return "";
-        }
-
-        // Get the resolver for the reverse node
-        address resolverAddr = CommonUtils.getPublicResolver(chainId);
-        if (resolverAddr == address(0)) {
-            return "";
-        }
-
-        // Get the basename text record
-        try IPublicResolver(resolverAddr).text(reverseNode, BASENAME_KEY) returns (string memory existingBasename) {
-            return existingBasename;
-        } catch {
-            return "";
-        }
-    }
-
-    /// @notice Creates ENS subname under given parent (for Base chains)
+    /// @notice Creates ENS subname under given parent
     /// @dev Uses msg.sender as the owner of the created subname
     /// @dev According to ENSIP-10: uses resolver from parent node, falls back to public resolver if none set
     /// @param chainId The chain ID
@@ -123,7 +40,7 @@ library BasenameSetter {
         address publicResolver = CommonUtils.getPublicResolver(chainId);
 
         require(registry != address(0), "Ens: unsupported chainId");
-        require(publicResolver != address(0), "Ens: public resolver not set for Base chain");
+        require(publicResolver != address(0), "Ens: public resolver not set for chain");
 
         // Get resolver from parent node according to ENSIP-10
         address resolver = IENSRegistry(registry).resolver(parentNode);
@@ -152,7 +69,7 @@ library BasenameSetter {
         return true;
     }
 
-    /// @notice Checks if address record already exists and matches the target address (for Base chains)
+    /// @notice Checks if address record already exists and matches the target address
     /// @param resolverAddr The resolver address to use
     /// @param node The ENS node
     /// @param coinType The coin type (60 for ETH)
@@ -174,7 +91,7 @@ library BasenameSetter {
         }
     }
 
-    /// @notice Sets address record, forward resolution (for Base chains)
+    /// @notice Sets address record, forward resolution
     /// @param resolverAddr The resolver address to use
     /// @param node The ENS node
     /// @param coinType The coin type (60 for ETH)
@@ -198,7 +115,7 @@ library BasenameSetter {
         }
     }
 
-    /// @notice Checks if reverse/primary name already exists and matches the target name (for Base chains)
+    /// @notice Checks if reverse/primary name already exists and matches the target name
     /// @param chainId The chain ID
     /// @param addr The address to check
     /// @param targetName The target name to compare against
@@ -223,7 +140,7 @@ library BasenameSetter {
         }
     }
 
-    /// @notice Sets forward resolution and returns the computed node (for Base chains)
+    /// @notice Sets forward resolution and returns the computed node
     /// @dev Creates a subname under the parent node and sets the address record
     /// @param chainId The chain ID
     /// @param contractAddress The contract address to set in the address record
@@ -255,7 +172,7 @@ library BasenameSetter {
         return (true, node);
     }
 
-    /// @notice Sets the primary (reverse) ENS name for an address (for Base chains)
+    /// @notice Sets the primary (reverse) ENS name for an address
     /// @param chainId The chain ID
     /// @param addr The address whose primary name is being set
     /// @param node The forward resolution node for the ENS name
@@ -271,7 +188,7 @@ library BasenameSetter {
         }
 
         address reverseRegistrar = CommonUtils.getReverseRegistrar(chainId);
-        require(reverseRegistrar != address(0), "Ens: reverseRegistrar not set for Base chain");
+        require(reverseRegistrar != address(0), "Ens: reverseRegistrar not set for chain");
 
         // Get resolver from node according to ENSIP-10, fall back to public resolver if none set
         address resolverAddr = CommonUtils.getResolverWithFallback(chainId, node);
